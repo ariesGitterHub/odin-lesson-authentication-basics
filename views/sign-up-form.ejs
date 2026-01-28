@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/styles/styles.css" />
+    <title>Sign Up</title>
+  </head>
+  <body>
+    <main class="sign-up-main">
+      <h1>Sign Up</h1>
+      <form class="sign-up-form" action="/sign-up" method="POST">
+        <label for="username">
+          <p>Username</p>
+          <input
+            id="username"
+            name="username"
+            placeholder="enter username"
+            type="text"
+          />
+        </label>
+        <label for="password">
+          <p>Password</p>
+          <input
+            id="password"
+            name="password"
+            placeholder="enter password"
+            type="password"
+          />
+        </label>
+        <button type="submit">Sign Up</button>
+      </form>
+    </main>
+  </body>
+</html>
+
+<!-- TODO -  For the sake of brevity, we’re going to leave sanitization and validation out here. But don’t forget about it when you get to that point, we will have the opportunity to apply them later. -->

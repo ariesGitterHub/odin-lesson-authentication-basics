@@ -1,0 +1,53 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home</title>
+</head>
+<body> -->
+  <!-- <h1>please log in</h1>
+<form action="/log-in" method="POST">
+  <label for="username">Username</label>
+  <input id="username" name="username" placeholder="username" type="text" />
+  <label for="password">Password</label>
+  <input id="password" name="password" type="password" />
+  <button type="submit">Log In</button>
+</form> 
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+        <link rel="stylesheet" href="/styles/styles.css" />
+    <title>Log In</title>
+    </head>
+    <body>
+        <main class="log-in-main">
+            <% if (locals.user) {%>
+                <h1>WELCOME BACK <%= user.username %></h1>
+                <a href="/log-out">LOG OUT</a>
+            <% } else { %>
+                <h1>please log in</h1>
+                <form class="log-in-form" action="/log-in" method="POST">
+                    <label for="username">
+                        <p>Username</p>
+                        <input id="username" name="username" placeholder="enter username" type="text" />               
+                    </label>
+                    <label for="password">
+                        <p>Password</p>
+                        <input id="password" name="password" placeholder="enter password" type="password" />             
+                    </label>
+                    <button type="submit">Log In</button>
+                    <a href="/sign-up">Create a username and password.</a>
+                </form>
+            <%}%>        
+        </main>
+    </body>
+</html>
+
+<!-- So, this code checks to see if there is a user defined… if so it offers a welcome message, and if NOT then it shows the login form. Neat! -->
+
+
