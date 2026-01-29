@@ -1,4 +1,6 @@
 require("dotenv").config();
+const bcrypt = require("bcryptjs");
+
 const path = require("node:path");
 const { Pool } = require("pg");
 const express = require("express");
@@ -71,15 +73,30 @@ app.get("/sign-up", (req, res) => res.render("sign-up-form"));
 
 // REMINDER - this is not a particularly safe way to create users in your database… BUT you should now be able to visit /sign-up, and submit the form. If all goes well it’ll redirect you to the index and you will be able to go see your newly created user inside your database. 
 
+// app.post("/sign-up", async (req, res, next) => {
+//   try {
+//     await pool.query("INSERT INTO users (username, password) VALUES ($1, $2)", [
+//       req.body.username,
+//       req.body.password,
+//     ]);
+//     res.redirect("/");
+//   } catch (err) {
+//     return next(err);
+//   }
+// });
+
+// CHANGED FOR BCRYPTJS
 app.post("/sign-up", async (req, res, next) => {
   try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10); // 10 is the length of the “salt” to use in the hashing function
     await pool.query("INSERT INTO users (username, password) VALUES ($1, $2)", [
       req.body.username,
-      req.body.password,
+      hashedPassword,
     ]);
     res.redirect("/");
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 });
 
@@ -98,9 +115,21 @@ passport.use(
       if (!user) {
         return done(null, false, { message: "Incorrect username" });
       }
-      if (user.password !== password) {
+
+      // Inside your LocalStrategy function we need to replace the user.password !== password expression with the bcrypt.compare() function.
+
+      //   if (user.password !== password) {
+      //     return done(null, false, { message: "Incorrect password" });
+      //   }
+
+      // With the code below, you should now be able to log in using the new user you’ve created (the one with a hashed password). Unfortunately, users that were saved BEFORE you added bcrypt will no longer work, but that’s a small price to pay for security! (and a good reason to include bcrypt from the start on your next project)
+
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+        // passwords do not match!
         return done(null, false, { message: "Incorrect password" });
       }
+
       return done(null, user);
     } catch (err) {
       return done(err);

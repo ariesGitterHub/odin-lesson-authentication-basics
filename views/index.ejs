@@ -27,8 +27,10 @@
     <body>
         <main class="log-in-main">
             <% if (locals.user) {%>
-                <h1>WELCOME BACK <%= user.username %></h1>
-                <a href="/log-out">LOG OUT</a>
+                <div class="welcome-back-container">
+                    <h1>welcome back... "<%= user.username %>"</h1>
+                    <a class="fake-button" href="/log-out">LOG OUT</a>                    
+                </div>
             <% } else { %>
                 <h1>please log in</h1>
                 <form class="log-in-form" action="/log-in" method="POST">
