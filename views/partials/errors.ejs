@@ -1,0 +1,9 @@
+<% if (errors && errors.length > 0) { %>
+  <div class="error-messages">
+    <% errors.forEach((error) => { %>
+      <p class="errors"><%= error %></p>
+    <% }); %>
+  </div>
+<% } %>
+
+

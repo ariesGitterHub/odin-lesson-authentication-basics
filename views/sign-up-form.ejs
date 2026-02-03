@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/styles/styles.css" />
-    <title>Sign Up</title>
+    <%- include('./partials/head.ejs') %>
   </head>
   <body>
     <main class="sign-up-main">
-      <h1>Sign Up</h1>
+      <h1>please sign up</h1>
       <form class="sign-up-form" action="/sign-up" method="POST">
         <label for="username">
           <p>Username</p>
@@ -27,10 +25,12 @@
             type="password"
           />
         </label>
-        <button type="submit">Sign Up</button>
+        <div class="button-container">
+          <a class="fake-button" href="/">Back</a>
+          <button type="submit">Sign Up</button>          
+        </div>
       </form>
+      <%- include('./partials/errors.ejs') %>  
     </main>
   </body>
 </html>
-
-<!-- TODO -  For the sake of brevity, we’re going to leave sanitization and validation out here. But don’t forget about it when you get to that point, we will have the opportunity to apply them later. -->
