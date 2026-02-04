@@ -1,14 +1,19 @@
+// Load environment variables
+
 require("dotenv").config();
-const bcrypt = require("bcryptjs");
-const path = require("node:path");
-const { Pool } = require("pg");
+
+// 2. Require modules 
+
 const express = require("express");
+const path = require("node:path");
 const session = require("express-session");
 const passport = require("passport");
+const { Pool } = require("pg");
+const bcrypt = require("bcryptjs");
 const LocalStrategy = require("passport-local").Strategy;
 const { body, validationResult } = require("express-validator");
 
-// PostgreSQL connection
+// PostgreSQL connection/database setup
 
 const pool = new Pool({
   host: process.env.PG_HOST,
@@ -21,9 +26,11 @@ const pool = new Pool({
   connectionTimeoutMillis: 5000,
 });
 
+// Express app init
+
 const app = express();
 
-// Static files and views setup
+// Middleware: static files and views setup
 
 app.use(express.static(__dirname + "/public"));
 app.set("views", path.join(__dirname, "views"));
@@ -47,21 +54,50 @@ app.use(
   }),
 );
 
-// Passport Middleware
+// Passport Middleware setup (after session)
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes
+// Passport LocalStrategy + serialize/deserialize
 
-// -- Login Form
-app.get("/", (req, res) => {
-  res.render("index", {
-    title: "Login",
-    user: req.user,
-    errors: [],
-  });
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    try {
+      const { rows } = await pool.query(
+        "SELECT * FROM users WHERE username = $1",
+        [username],
+      );
+      const user = rows[0];
+
+      if (!user) return done(null, false, { message: "Incorrect username." });
+
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) return done(null, false, { message: "Incorrect password." });
+
+      return done(null, user);
+    } catch (err) {
+      return done(err);
+    }
+  }),
+);
+
+// -- Serialize / Deserialize
+
+passport.serializeUser((user, done) => done(null, user.id));
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM users WHERE id = $1", [
+      id,
+    ]);
+    done(null, rows[0]);
+  } catch (err) {
+    done(err);
+  }
 });
+
+// Routes (get, post)
 
 // -- Sign-up Form
 app.get("/sign-up", (req, res) => {
@@ -120,43 +156,13 @@ app.post(
   },
 );
 
-
-// Passport LocalStrategy
-
-passport.use(
-  new LocalStrategy(async (username, password, done) => {
-    try {
-      const { rows } = await pool.query(
-        "SELECT * FROM users WHERE username = $1",
-        [username],
-      );
-      const user = rows[0];
-
-      if (!user) return done(null, false, { message: "Incorrect username." });
-
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) return done(null, false, { message: "Incorrect password." });
-
-      return done(null, user);
-    } catch (err) {
-      return done(err);
-    }
-  }),
-);
-
-// Serialize / Deserialize
-
-passport.serializeUser((user, done) => done(null, user.id));
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const { rows } = await pool.query("SELECT * FROM users WHERE id = $1", [
-      id,
-    ]);
-    done(null, rows[0]);
-  } catch (err) {
-    done(err);
-  }
+// -- Login Form
+app.get("/", (req, res) => {
+  res.render("index", {
+    title: "Login",
+    user: req.user,
+    errors: [],
+  });
 });
 
 // -- Log-in Form with Validation
@@ -198,7 +204,6 @@ app.post(
     })(req, res, next);
   },
 );
-
 
 // -- Log-out
 app.get("/log-out", (req, res, next) => {
